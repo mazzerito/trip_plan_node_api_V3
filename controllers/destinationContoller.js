@@ -18,21 +18,6 @@ exports.createDestination = async (req, res) => {
     }
 };
 
-// exports.createDestination = async (req, res) => {
-//     try {
-//         const trip = await Trip.findByPk(req.params.trip_id);
-//         if (!trip) {
-//             return res.status(404).json({ error: 'Trip not found' });
-//         }
-//         const destination = await Destination.create(req.body);
-//         res.status(201).json({ 
-//             message: 'A Destination successfully created', 
-//             destination: destination,
-//         });
-//     } catch (error) {
-//         res.status(400).json({ error: error.message });
-//     }
-// };
 //get specific destination by trip id
 exports.getTripDestination = async (req, res) => {
     try {

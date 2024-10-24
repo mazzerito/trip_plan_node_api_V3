@@ -3,10 +3,22 @@ const User = require('../models/User');
 // Create User
 exports.createUser = async (req, res) => {
     try {
-        const user = await User.create(req.body);
-        res.status(201).json({ 
-            message: 'A User successfully created', 
-            user: user 
+        // Extract image file name if it exists
+        const image_file_name = req.file ? req.file.filename : null;
+        
+        const { user_name, email, password } = req.body;
+
+        // Create user with required fields
+        const user = await User.create({
+            user_name,
+            email,
+            password,
+            profile_picture: image_file_name
+        });
+
+        res.status(201).json({
+            message: 'A User successfully created',
+            user: user
         });
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -38,12 +50,42 @@ exports.getUserById = async (req, res) => {
 };
 
 // Update User
+// exports.updateUser = async (req, res) => {
+//     try {
+//         const user = await User.update(req.body, {
+//             where: { user_id: req.params.id }
+//         });
+//         res.status(200).json({ message: 'User updated' });
+//     } catch (error) {
+//         res.status(500).json({ error: error.message });
+//     }
+// };
 exports.updateUser = async (req, res) => {
     try {
-        const user = await User.update(req.body, {
-            where: { user_id: req.params.id }
+        const { user_name, email, password } = req.body;
+        
+        // Find the user by ID (assuming ID is passed as a URL parameter)
+        const user = await User.findByPk(req.params.id);
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Check if a new file is uploaded
+        const image_file_name = req.file ? req.file.filename : user.profile_picture;
+
+        // Update the user record
+        await user.update({
+            user_name: user_name || user.user_name, 
+            email: email || user.email,            
+            password: password || user.password,  
+            profile_picture: image_file_name       
         });
-        res.status(200).json({ message: 'User updated' });
+
+        res.status(200).json({
+            message: 'User updated successfully',
+            user: user
+        });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
